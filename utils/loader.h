@@ -8,7 +8,8 @@
 #include <stdio.h>
 #include "parser.h"
 
-int load_file(struct program_params_t params, FILE *file);
-int get_line(FILE *file, char* line_buffer);
+int load_file(struct program_params_t params, FILE **file);
+
+int get_line(FILE *file, char **line);
 
 #endif //PROJECT_02_LOADER_H

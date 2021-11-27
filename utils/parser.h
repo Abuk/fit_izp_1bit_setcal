@@ -11,8 +11,11 @@ struct program_params_t {
 };
 
 void print_program_usage();
-int program_params_construct(struct program_params_t* params, int argv, char** argc);
-void program_params_destruct(struct program_params_t* params);
+
+int program_params_construct(struct program_params_t *params, int argv, char **argc);
+
+void program_params_destruct(struct program_params_t *params);
+//int parse_line(struct node)
 
 
 #endif //PROJECT_02_PARSER_H
