@@ -1,8 +1,10 @@
 CC=gcc
-CFLAGS=-std=c99 -Wall -Wextra -Werror
+CFLAGS=-lstdc++ -std=c99 -Wall -Wextra -Werror
+default_target=all
+LIBS= utils/loader.c utils/parser.c
 
 main:
-	$(CC) $(CFLAGS) main.c -o setcal
+	$(CC) $(CFLAGS) setcal.c $(LIBS) -o setcal
 
 clean:
 	rm -f setcal
