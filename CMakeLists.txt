@@ -8,4 +8,4 @@ add_definitions(${GCC_COMPILE_FLAGS})
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_COMPILE_FLAGS}")
 
-add_executable(Project_02 setcal.c utils/loader.c utils/loader.h utils/parser.c utils/parser.h)
+add_executable(Project_02 setcal.c utils/loader.c utils/loader.h utils/parser.c utils/parser.h utils/types.c utils/types.h)
