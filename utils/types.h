@@ -26,8 +26,8 @@ struct universe_t {
 
 
 struct set_t {
-    element_t *elements;
     size_t size;
+    element_t *elements;
 };
 
 struct relation_t {
@@ -36,21 +36,24 @@ struct relation_t {
 };
 
 // universe functions
-void universe_construct(struct universe_t *universe);
+struct universe_t universe_construct();
 
 void universe_destruct(struct universe_t *universe);
 
 int universe_push(struct universe_t *universe, struct universe_member_t member);
 
+int get_universe_member_id_by_name(struct universe_t universe, char *name);
+
+
 // set functions
-int set_construct(struct set_t *set);
+struct set_t set_construct();
 
 void set_destruct(struct set_t *set);
 
 int set_push(struct set_t *set, element_t element);
 
 // relation functions
-int relation_construct(struct relation_t *relation, size_t size);
+struct relation_t relation_construct();
 
 void relation_destruct(struct relation_t *relation);
 
