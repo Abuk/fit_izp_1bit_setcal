@@ -46,6 +46,8 @@ int universe_push(struct universe_t *universe, struct universe_member_t member);
 
 int get_universe_member_id_by_name(struct universe_t universe, char *name);
 
+char *get_universe_member_name_by_id(struct universe_t universe, element_t id);
+
 
 // set functions
 struct set_t set_construct();

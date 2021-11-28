@@ -63,6 +63,17 @@ int get_universe_member_id_by_name(struct universe_t universe, char *name) {
     return -1;
 }
 
+char *get_universe_member_name_by_id(struct universe_t universe, element_t id) {
+    for (size_t i = 0; i < universe.size; ++i) {
+        if (universe.elements[i].id == id) {
+            return universe.elements[i].name;
+        }
+    }
+
+    return "";
+}
+
+
 // set functions
 struct set_t set_construct() {
     struct set_t set;
