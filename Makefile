@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-lstdc++ -std=c99 -Wall -Wextra -Werror
+CFLAGS=-std=c99 -Wall -Wextra -Werror
 default_target=all
 LIBS= utils/loader.c utils/parser.c utils/types.c utils/functions.c
 
