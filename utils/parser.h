@@ -29,5 +29,6 @@ int parse_universe(char *universe_string);
 
 int parse_set(int set_pos, char *line);
 
+int parse_relation(int relation_pos, char*line);
 
 #endif //PROJECT_02_PARSER_H

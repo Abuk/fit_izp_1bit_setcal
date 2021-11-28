@@ -10,6 +10,9 @@ struct universe_t universe;
 struct set_t *sets;
 struct relation_t *relations;
 
+int set_count;
+int relation_count;
+
 int main(int argc, char **argv) {
     FILE *file = NULL;
     char *line = NULL;
@@ -33,8 +36,25 @@ int main(int argc, char **argv) {
         }
     }
 
+    // deallocate universe
     universe_destruct(&universe);
+
+    // deallocate sets
+    for(int i = 0; i < set_count; ++i) {
+        set_destruct(&sets[i]);
+    }
+    free(sets);
+    sets = NULL;
+
+    // deallocate relations
+    for(int i = 0; i < relation_count; ++i) {
+        relation_destruct(&relations[i]);
+    }
+    free(relations);
+    relations = NULL;
+
     fclose(file);
+    file = NULL;
     free(line);
     line = NULL;
 

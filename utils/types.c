@@ -80,19 +80,17 @@ void set_destruct(struct set_t *set) {
 
 int set_push(struct set_t *set, element_t element) {
     size_t new_allocation_size = sizeof(element_t) * (set->size + 1);
-    printf("size: %lu\n", new_allocation_size);
-    set->elements = (element_t *) realloc((*set).elements,
-                                          new_allocation_size);
+    set->elements = realloc(set->elements,
+                            new_allocation_size);
+
     if (set->elements == NULL) {
 #ifdef DEBUG
         fprintf(stderr, "realloc: allocation error");
 #endif
         return 0;
     }
-//    printf("sizeof elements: %lu\n", sizeof(set->elements) / sizeof(element_t));
-//    printf("size of sets: %lu\n", set->size + 1);
-    set->elements[set->size] = element;
-    set->size++;
+
+    set->elements[set->size++] = element;
 
     return 1;
 }
