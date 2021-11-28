@@ -5,6 +5,8 @@
 #ifndef PROJECT_02_LOADER_H
 #define PROJECT_02_LOADER_H
 
+#define DEBUG
+
 #include <stdio.h>
 #include "parser.h"
 
