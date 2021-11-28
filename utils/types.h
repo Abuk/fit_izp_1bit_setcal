@@ -35,6 +35,8 @@ struct relation_t {
     size_t size;
 };
 
+extern const char *keywords[];
+
 // universe functions
 struct universe_t universe_construct();
 
