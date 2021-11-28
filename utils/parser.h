@@ -7,15 +7,22 @@
 
 #include "types.h"
 
-extern struct program_params_t program_params;
-extern struct universe_t universe;
-extern struct set_t *sets;
-extern struct relation_t *relations;
-
 struct program_params_t {
     char *program_path;
     char *file_path;
 };
+
+struct function_t {
+    const char *name;
+    const char *alias;
+
+    void (*p_func)();
+
+    int n_args;
+};
+
+extern struct function_t set_function_table[];
+extern struct function_t relation_function_table[];
 
 void print_program_usage();
 
@@ -29,6 +36,8 @@ int parse_universe(char *universe_string);
 
 int parse_set(int set_pos, char *line);
 
-int parse_relation(int relation_pos, char*line);
+int parse_relation(int relation_pos, char *line);
+
+int parse_command(char *line);
 
 #endif //PROJECT_02_PARSER_H

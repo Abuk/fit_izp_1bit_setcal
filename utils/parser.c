@@ -3,15 +3,13 @@
 //
 
 #include "parser.h"
+#include "functions.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
 #define ARG_COUNT 2
-
-#ifndef DEBUG
 #define DEBUG
-#endif
 
 struct program_params_t program_params;
 struct universe_t universe;
@@ -20,6 +18,38 @@ struct relation_t *relations = NULL;
 
 int set_count = 0;
 int relation_count = 0;
+
+#define REGISTER(FUNC, ALIAS, N_ARGS) { #FUNC, ALIAS, &FUNC, N_ARGS }
+struct function_t set_function_table[] = {
+        REGISTER(set_empty, "empty", 1),
+        REGISTER(set_card, "card", 1),
+        REGISTER(set_complement, "complement", 1),
+        REGISTER(set_union, "union", 2),
+        REGISTER(set_intersect, "intersect", 2),
+        REGISTER(set_minus, "minus", 2),
+        REGISTER(set_subseteq, "subseteq", 2),
+        REGISTER(set_subset, "subset", 2),
+        REGISTER(set_equals, "equals", 2),
+};
+
+struct function_t relation_function_table[] = {
+        REGISTER(rel_reflexive, "reflexive", 1),
+        REGISTER(rel_symmetric, "symmetric", 1),
+        REGISTER(rel_antisymmetric, "antisymmetric", 1),
+        REGISTER(rel_transitive, "transitive", 1),
+        REGISTER(rel_function, "function", 1),
+        REGISTER(rel_domain, "domain", 1),
+        REGISTER(rel_codomain, "codomain", 1),
+        REGISTER(rel_injective, "injective", 3),
+        REGISTER(rel_surjective, "surjective", 3),
+        REGISTER(rel_bijective, "bijective", 3),
+};
+#undef REGISTER
+
+enum {
+    set_function_table_size = sizeof set_function_table / sizeof *set_function_table,
+    rel_function_table_size = sizeof relation_function_table / sizeof *relation_function_table
+};
 
 const char *keywords[] = {
         "U"
@@ -68,7 +98,7 @@ void program_params_destruct() {
 }
 
 int parse_line(char *line) {
-    register uint16_t current_line_number = 1;
+    static uint16_t current_line_number = 1;
     switch (line[0]) {
         case 'U': {
             if (universe.size != 0) {
@@ -122,14 +152,16 @@ int parse_line(char *line) {
 
             break;
         }
-//        case 'C': {
-//            if (universe.size != 0) {
-//                fprintf(stderr, "parser: you cannot have more than 1 universe");
-//                return EXIT_FAILURE;
-//            }
-//            parse_universe(line);
-//            break;
-//        }
+        case 'C': {
+            if (!parse_command(line)) {
+#ifdef DEBUG
+                fprintf(stderr, "command: an error has occurred while parsing on line %d\n",
+                        current_line_number);
+#endif
+                return 0;
+            }
+            break;
+        }
     }
 
     current_line_number++;
@@ -173,7 +205,6 @@ int parse_set(int set_pos, char *line) {
         substr = strtok(NULL, " ");
     } while (substr != NULL);
 
-
     return 1;
 }
 
@@ -215,6 +246,112 @@ int parse_relation(int relation_pos, char *line) {
         relation_push(&relations[relation_pos], new_pair(x, y));
     } while (substr != NULL);
 
+
+    return 1;
+}
+
+void free_array(int **arr) {
+    free(*arr);
+    *arr = NULL;
+}
+
+int parse_command(char *line) {
+    char *function;
+    struct function_t *func;
+    int func_type = 0;
+    int *args = NULL;
+
+    strtok(line, " ");
+    function = strtok(NULL, " ");
+
+
+    for (int i = 0; i < set_function_table_size; ++i) {
+        if (strcmp(function, set_function_table[i].alias) == 0) {
+            func = &set_function_table[i];
+            func_type = 'S';
+        }
+    }
+
+    for (int i = 0; i < rel_function_table_size; ++i) {
+        if (strcmp(function, relation_function_table[i].alias) == 0) {
+            func = &relation_function_table[i];
+            func_type = 'R';
+        }
+    }
+
+    if (func_type == 0) {
+#ifdef DEBUG
+        fprintf(stderr, "command: function %s does not exist\n", function);
+#endif
+        return 0;
+    }
+
+    char *arg = strtok(NULL, " ");
+    int k = 0;
+    while (arg != NULL) {
+        args = realloc(args, sizeof(int) * (k + 1));
+        if (args == NULL) {
+#ifdef DEBUG
+            fprintf(stderr, "command: malloc: allocation error\n");
+#endif
+            return 0;
+        }
+        args[k++] = atoi(arg);
+        arg = strtok(NULL, " ");
+    }
+
+    if (func->n_args != k) {
+        free_array(&args);
+#ifdef DEBUG
+        fprintf(stderr, "command: function %s expects %d arguments (%d provided)\n", func->alias, func->n_args, k);
+#endif
+        return 0;
+    }
+
+    switch (func_type) {
+        case 'S': {
+            switch (func->n_args) {
+                case 1: {
+                    if (args[0] > set_count) {
+                        free_array(&args);
+#ifdef DEBUG
+                        fprintf(stderr, "command_parser: argument referencing undefined set\n");
+#endif
+                        return 0;
+                    }
+                    (*func->p_func)(sets[args[0] - 1]);
+                    return 1;
+                }
+                case 2: {
+                    if (args[0] > set_count || args[1] > set_count) {
+                        free_array(&args);
+#ifdef DEBUG
+                        fprintf(stderr, "command_parser: argument referencing undefined set\n");
+#endif
+                        return 0;
+                    }
+                    (*func->p_func)(sets[args[0] - 1], sets[args[1] - 1]);
+                    break;
+                }
+            }
+            break;
+        }
+        case 'R': {
+            switch (func->n_args) {
+                case 1: {
+                    (*func->p_func)(args[0]);
+                    break;
+                }
+                case 3: {
+                    (*func->p_func)(args[0], args[1], args[2]);
+                    break;
+                }
+            }
+            break;
+        }
+    }
+
+    free_array(&args);
 
     return 1;
 }
