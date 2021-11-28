@@ -62,7 +62,7 @@ int get_line(FILE *file, char **line) {
         }
         if(char_buffer == EOF) {
             line_buffer[char_count++] = '\0';
-            return 0;
+            break;
         }
         if (char_count == current_allocation_size - 1) {
             if (!line_reallocator(&line_buffer, (current_allocation_size += allocation_chunk))) {
@@ -88,6 +88,8 @@ int get_line(FILE *file, char **line) {
     // dealloc buffer
     free(line_buffer);
     line_buffer = NULL;
-
+    if(char_buffer == EOF) {
+        return EOF;
+    }
     return 1;
 }
