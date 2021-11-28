@@ -16,6 +16,7 @@ int relation_count;
 int main(int argc, char **argv) {
     FILE *file = NULL;
     char *line = NULL;
+    int line_parser_result;
 
     if (!program_params_construct(argc, argv)) {
         print_program_usage();
@@ -28,11 +29,12 @@ int main(int argc, char **argv) {
     program_params_destruct();
     universe_construct();
 
-    while (get_line(file, &line)) {
-        if (strlen(line) != 0) {
-            if(!parse_line(line)) {
-                return EXIT_FAILURE;
-            }
+    while ((line_parser_result = get_line(file, &line)) != 0) {
+        if (parse_line(line) == 0) {
+            return EXIT_FAILURE;
+        }
+        if (line_parser_result == EOF) {
+            break;
         }
     }
 
@@ -40,14 +42,14 @@ int main(int argc, char **argv) {
     universe_destruct(&universe);
 
     // deallocate sets
-    for(int i = 0; i < set_count; ++i) {
+    for (int i = 0; i < set_count; ++i) {
         set_destruct(&sets[i]);
     }
     free(sets);
     sets = NULL;
 
     // deallocate relations
-    for(int i = 0; i < relation_count; ++i) {
+    for (int i = 0; i < relation_count; ++i) {
         relation_destruct(&relations[i]);
     }
     free(relations);
