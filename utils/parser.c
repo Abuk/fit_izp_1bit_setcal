@@ -53,8 +53,19 @@ enum {
 };
 
 const char *keywords[] = {
-        "U"
+        "U", "S", "R", "C", "true", "false", "empty", "card", "complement", "union", "intersect", "minus", "subseteq",
+        "subset", "equals", "reflexive", "symmetric", "antisymmetric", "transitive",
+        "function", "domain", "injective", "surjective", "bijective"
 };
+
+int keywords_contain(const char *string) {
+    for (size_t i = 0; i < (sizeof keywords / sizeof *keywords); ++i) {
+        if (!strcmp(string, keywords[i])) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 void print_program_usage() {
     fprintf(stderr, "usage:\n./setcal FILE\n");
@@ -100,6 +111,16 @@ void program_params_destruct() {
 
 int parse_line(char *line) {
     static unsigned short current_line_number = 1;
+
+    if (strlen(line) == 0) {
+        current_line_number++;
+        return 1;
+    }
+
+    if (line[0] != 'C') {
+        printf("%s\n", line);
+    }
+
     if (current_line_number == MAX_LINE_COUNT + 1) {
 #ifdef DEBUG
         fprintf(stderr, "setcal: line limit exceeded (maximum lines: %d)", MAX_LINE_COUNT);
@@ -136,7 +157,6 @@ int parse_line(char *line) {
 #endif
             }
             set_count++;
-
             break;
         }
         case 'R': {
@@ -168,6 +188,12 @@ int parse_line(char *line) {
             }
             break;
         }
+        default: {
+#ifdef DEBUG
+            fprintf(stderr, "line_parser: syntax error on line %d\n", current_line_number);
+#endif
+            return 0;
+        }
     }
 
     current_line_number++;
@@ -183,10 +209,16 @@ int parse_universe(char *universe_string) {
             substr = strtok(NULL, " ");
             continue;
         }
+        if (keywords_contain(substr)) {
+#ifdef DEBUG
+            fprintf(stderr, "universe: member [%s] cannot be one of reserved keywords\n", substr);
+#endif
+            return 0;
+        }
         struct universe_member_t member = new_universe_member(i++, substr);
         if (get_universe_member_id_by_name(universe, substr) != -1) {
 #ifdef DEBUG
-            fprintf(stderr, "universe: universe member [%s] already exists and cannot be redeclared twice", substr);
+            fprintf(stderr, "universe: member [%s] already exists and cannot be redeclared twice\n", substr);
 #endif
             return 0;
         }
@@ -206,7 +238,12 @@ int parse_set(int set_pos, char *line) {
             substr = strtok(NULL, " ");
             continue;
         }
-
+        if (keywords_contain(substr)) {
+#ifdef DEBUG
+            fprintf(stderr, "set: member [%s] cannot be one of reserved keywords\n", substr);
+#endif
+            return 0;
+        }
         set_push(&sets[set_pos], get_universe_member_id_by_name(universe, substr));
         substr = strtok(NULL, " ");
     } while (substr != NULL);
@@ -216,14 +253,10 @@ int parse_set(int set_pos, char *line) {
 
 int parse_relation(int relation_pos, char *line) {
     char *substr;
-    substr = strtok(line, " ()");
+    strtok(line, " ");
+
     relations[relation_pos] = relation_construct();
     do {
-        if (!strcmp(substr, "S")) {
-            substr = strtok(NULL, " ()");
-            continue;
-        }
-
         int x, y;
         substr = strtok(NULL, " (");
         if (substr == NULL) {
@@ -234,7 +267,7 @@ int parse_relation(int relation_pos, char *line) {
         substr = strtok(NULL, " )");
         if (substr == NULL) {
 #ifdef DEBUG
-            fprintf(stderr, "relation: pair has only one member");
+            fprintf(stderr, "relation: pair has only one member\n");
 #endif
             return 0;
         }
@@ -270,11 +303,17 @@ int parse_command(char *line) {
     strtok(line, " ");
     function = strtok(NULL, " ");
 
-
+    if (function == NULL) {
+#ifdef DEBUG
+        fprintf(stderr, "command: missing function name\n");
+#endif
+        return 0;
+    }
     for (int i = 0; i < set_function_table_size; ++i) {
         if (strcmp(function, set_function_table[i].alias) == 0) {
             func = &set_function_table[i];
             func_type = 'S';
+            break;
         }
     }
 
@@ -282,6 +321,7 @@ int parse_command(char *line) {
         if (strcmp(function, relation_function_table[i].alias) == 0) {
             func = &relation_function_table[i];
             func_type = 'R';
+            break;
         }
     }
 
@@ -302,12 +342,18 @@ int parse_command(char *line) {
 #endif
             return 0;
         }
-        args[k++] = atoi(arg);
+        args[k++] = strtol(arg, NULL, 10);
+        if (args[k - 1] == 0) {
+#ifdef DEBUG
+            fprintf(stderr, "command: strtol: invalid argument value - expected number > 0\n");
+#endif
+        }
         arg = strtok(NULL, " ");
     }
 
     if (func->n_args != k) {
         free_array(&args);
+        printf("relation: %d", args[0]);
 #ifdef DEBUG
         fprintf(stderr, "command: function %s expects %d arguments (%d provided)\n", func->alias, func->n_args, k);
 #endif
@@ -345,11 +391,25 @@ int parse_command(char *line) {
         case 'R': {
             switch (func->n_args) {
                 case 1: {
-                    (*func->p_func)(args[0]);
+                    if (args[0] > relation_count) {
+                        free_array(&args);
+#ifdef DEBUG
+                        fprintf(stderr, "command_parser: argument referencing undefined set\n");
+#endif
+                        return 0;
+                    }
+                    (*func->p_func)(relations[args[0] - 1]);
                     break;
                 }
                 case 3: {
-                    (*func->p_func)(args[0], args[1], args[2]);
+                    if (args[0] > relation_count || args[1] > set_count || args[2] > set_count) {
+                        free_array(&args);
+#ifdef DEBUG
+                        fprintf(stderr, "command_parser: argument referencing undefined set\n");
+#endif
+                        return 0;
+                    }
+                    (*func->p_func)(relations[args[0] - 1], sets[args[1] - 1], sets[args[2] - 1]);
                     break;
                 }
             }
