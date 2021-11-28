@@ -9,6 +9,7 @@
 #include <string.h>
 
 #define ARG_COUNT 2
+#define MAX_LINE_COUNT 1000
 #define DEBUG
 
 struct program_params_t program_params;
@@ -98,7 +99,12 @@ void program_params_destruct() {
 }
 
 int parse_line(char *line) {
-    static uint16_t current_line_number = 1;
+    static unsigned short current_line_number = 1;
+    if (current_line_number == MAX_LINE_COUNT + 1) {
+#ifdef DEBUG
+        fprintf(stderr, "setcal: line limit exceeded (maximum lines: %d)", MAX_LINE_COUNT);
+#endif
+    }
     switch (line[0]) {
         case 'U': {
             if (universe.size != 0) {
