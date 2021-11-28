@@ -4,6 +4,7 @@
 
 #ifndef PROJECT_02_FUNCTIONS_H
 #define PROJECT_02_FUNCTIONS_H
+#define DEBUG
 
 #include "types.h"
 

@@ -10,7 +10,6 @@
 
 #define ARG_COUNT 2
 #define MAX_LINE_COUNT 1000
-#define DEBUG
 
 struct program_params_t program_params;
 struct universe_t universe;
