@@ -1010,7 +1010,7 @@ void rel_codomain(struct relation_t relation) {
         return;
     }
     printf("false");
-};;
+}
 
 void rel_injective(struct relation_t relation, struct set_t set_a, struct set_t set_b) {
     if (relation.size == 0 && set_a.size == 0 && set_b.size == 0) {
