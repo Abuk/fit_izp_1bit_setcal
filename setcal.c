@@ -1014,7 +1014,7 @@ void rel_codomain(struct relation_t relation) {
 
 void rel_injective(struct relation_t relation, struct set_t set_a, struct set_t set_b) {
     if (relation.size == 0 && set_a.size == 0 && set_b.size == 0) {
-        printf("true");
+        printf("injective zulul");
         return;
     }
     printf("false");
