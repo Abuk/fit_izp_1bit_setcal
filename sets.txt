@@ -1,5 +1,5 @@
 U a b c x y z dad boy girl mom woman man
-S a b c x
+S c x
 S dad boy girl x c
 R (a a) (a b) (b b) (b c) (c c)
 R (dad man) (boy man) (mom woman) (girl woman)

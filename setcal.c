@@ -881,21 +881,28 @@ void set_complement(struct set_t set) {
 }
 
 void set_union(struct set_t set_a, struct set_t set_b) {
+    struct set_t set = set_construct();
+
     for (size_t i = 0; i < set_a.size; i++) {
-        for (size_t j = 0; j < set_b.size; j++) {
-            if (set_a.elements[i] != set_b.elements[j]) {
-                printf("%s ", get_universe_member_name_by_id(universe, set_a.elements[i]));
-            }
+        if (!in_array(set_a.elements[i], (int *) set.elements, set_a.size)) {
+            set_push(&set, set_a.elements[i]);
         }
+    }
+    for (size_t i = 0; i < set_b.size; i++) {
+        if (!in_array(set_b.elements[i], (int *) set.elements, set_b.size)) {
+            set_push(&set, set_b.elements[i]);
+        }
+    }
+    for (size_t i = 0; i < set.size; ++i) {
+        printf("%s ", get_universe_member_name_by_id(universe, set.elements[i]));
     }
     printf("\n");
 }
 
 void set_intersect(struct set_t set_a, struct set_t set_b) {
     for (size_t i = 0; i < set_a.size; i++) {
-        for (size_t j = 0; j < set_b.size; j++) {
-            if (set_a.elements[i] == set_b.elements[j])
-                printf("%s ", get_universe_member_name_by_id(universe, set_a.elements[i]));
+        if (in_array(set_a.elements[i], (int *) set_b.elements, set_b.size)) {
+            printf("%s ", get_universe_member_name_by_id(universe, set_a.elements[i]));
         }
     }
     printf("\n");
@@ -903,29 +910,22 @@ void set_intersect(struct set_t set_a, struct set_t set_b) {
 
 void set_minus(struct set_t set_a, struct set_t set_b) {
     for (size_t i = 0; i < set_a.size; i++) {
-        for (size_t j = 0; j < set_b.size; j++) {
-            if (set_a.elements[i] != set_b.elements[j])
-                printf("%s ", get_universe_member_name_by_id(universe, set_a.elements[i]));
+        if (!in_array(set_a.elements[i], (int *) set_b.elements, set_b.size)) {
+            printf("%s ", get_universe_member_name_by_id(universe, set_a.elements[i]));
         }
     }
     printf("\n");
 }
 
 void set_subseteq(struct set_t set_a, struct set_t set_b) {
-    size_t count = 0;
-
     for (size_t i = 0; i < set_a.size; i++) {
-        for (size_t j = 0; j < set_b.size; j++) {
-            if (set_a.elements[i] == set_b.elements[j])
-                count++;
+        if (!in_array(set_a.elements[i], (int *) set_b.elements, set_b.size)) {
+            printf("false\n");
+            return;
         }
     }
 
-    if (count == set_a.size) {
-        printf("true\n");
-    } else {
-        printf("false\n");
-    }
+    printf("true\n");
 }
 
 void set_subset(struct set_t set_a, struct set_t set_b) {
