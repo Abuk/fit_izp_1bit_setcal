@@ -123,7 +123,7 @@ void set_card(struct set_t set);
 
 void set_complement(struct set_t set);
 
-void set_union(struct set_t set);
+void set_union(struct set_t set_a, struct set_t set_b);
 
 void set_intersect(struct set_t set_a, struct set_t set_b);
 
@@ -167,7 +167,7 @@ struct function_t set_function_table[] = {
         REGISTER(set_subseteq, "subseteq", 2),
         REGISTER(set_subset, "subset", 2),
         REGISTER(set_equals, "equals", 2),
-        };
+};
 
 struct function_t relation_function_table[] = {
         REGISTER(rel_reflexive, "reflexive", 1),
@@ -180,7 +180,7 @@ struct function_t relation_function_table[] = {
         REGISTER(rel_injective, "injective", 3),
         REGISTER(rel_surjective, "surjective", 3),
         REGISTER(rel_bijective, "bijective", 3),
-        };
+};
 #undef REGISTER
 
 enum {
@@ -240,68 +240,66 @@ int main(int argc, char **argv) {
 
 // universe functions
 struct universe_t universe_construct() {
-    struct universe_t universe;
+    struct universe_t u;
 
-    universe.elements = NULL;
-    universe.size = 0;
+    u.elements = NULL;
+    u.size = 0;
 
-    return universe;
+    return u;
 }
 
-void universe_destruct(struct universe_t *universe) {
-    for (size_t i = 0; i < universe->size; ++i) {
-        free(universe->elements[i].name);
-        universe->elements[i].name = NULL;
+void universe_destruct(struct universe_t *u) {
+    for (size_t i = 0; i < u->size; ++i) {
+        free(u->elements[i].name);
+        u->elements[i].name = NULL;
     }
 
-    free(universe->elements);
-    universe->elements = NULL;
+    free(u->elements);
+    u->elements = NULL;
 }
 
-int universe_push(struct universe_t *universe, struct universe_member_t member) {
-    universe->elements = (struct universe_member_t *) realloc(universe->elements,
-            sizeof(struct universe_member_t) * (universe->size + 1));
-    if (universe->elements == NULL) {
+int universe_push(struct universe_t *u, struct universe_member_t member) {
+    u->elements = realloc(u->elements, sizeof(struct universe_member_t) * (u->size + 1));
+    if (u->elements == NULL) {
 #ifdef DEBUG
         fprintf(stderr, "realloc: allocation error");
 #endif
         return 0;
     }
 
-    universe->size++;
-    universe->elements[universe->size - 1].name = (char *) malloc(sizeof(char) * (strlen(member.name) + 1));
-    if (universe->elements[universe->size - 1].name == NULL) {
+    u->size++;
+    u->elements[u->size - 1].name = (char *) malloc(sizeof(char) * (strlen(member.name) + 1));
+    if (u->elements[u->size - 1].name == NULL) {
 #ifdef DEBUG
         fprintf(stderr, "realloc: allocation error");
 #endif
         return 0;
     }
-    strcpy(universe->elements[universe->size - 1].name, member.name);
-    universe->elements[universe->size - 1].id = universe->size;
+    strcpy(u->elements[u->size - 1].name, member.name);
+    u->elements[u->size - 1].id = u->size;
 
     return 1;
 }
 
-int get_universe_member_id_by_name(struct universe_t universe, char *name) {
-    for (size_t i = 0; i < universe.size; ++i) {
-        if (!strcmp(universe.elements[i].name, name)) {
-            return universe.elements[i].id;
+int get_universe_member_id_by_name(struct universe_t u, char *name) {
+    for (size_t i = 0; i < u.size; ++i) {
+        if (!strcmp(u.elements[i].name, name)) {
+            return u.elements[i].id;
         }
     }
 
     return -1;
 }
 
-char *get_universe_member_name_by_id(struct universe_t universe, element_t id) {
-    for (size_t i = 0; i < universe.size; ++i) {
-        if (universe.elements[i].id == id) {
-            return universe.elements[i].name;
+char *get_universe_member_name_by_id(struct universe_t u, element_t id) {
+    for (size_t i = 0; i < u.size; ++i) {
+        if (u.elements[i].id == id) {
+            return u.elements[i].name;
         }
     }
 
     return "";
 }
-
 
 // set functions
 struct set_t set_construct() {
@@ -320,8 +318,7 @@ void set_destruct(struct set_t *set) {
 
 int set_push(struct set_t *set, element_t element) {
     size_t new_allocation_size = sizeof(element_t) * (set->size + 1);
-    set->elements = realloc(set->elements,
-                            new_allocation_size);
+    set->elements = realloc(set->elements, new_allocation_size);
 
     if (set->elements == NULL) {
 #ifdef DEBUG
@@ -352,7 +349,7 @@ void relation_destruct(struct relation_t *relation) {
 
 int relation_push(struct relation_t *relation, struct pair_t pair) {
     relation->pairs = (struct pair_t *) realloc(relation->pairs,
-            sizeof(struct pair_t) * (relation->size + 1));
+                                                sizeof(struct pair_t) * (relation->size + 1));
     if (relation->pairs == NULL) {
 #ifdef DEBUG
         fprintf(stderr, "realloc: allocation error");
@@ -391,7 +388,6 @@ struct universe_member_t new_universe_member(element_t id, char *name) {
 
     return member;
 }
-
 
 
 int keywords_contain(const char *string) {
@@ -808,7 +804,7 @@ int get_line(FILE *file, char **line) {
             line_buffer[char_count++] = '\0';
             break;
         }
-        if(char_buffer == EOF) {
+        if (char_buffer == EOF) {
             line_buffer[char_count++] = '\0';
             break;
         }
@@ -826,7 +822,7 @@ int get_line(FILE *file, char **line) {
     }
 
     *line = (char *) malloc(sizeof(char) * char_count);
-    if(*line == NULL) {
+    if (*line == NULL) {
         fprintf(stderr, "loader: allocation error");
         return 0;
     }
@@ -836,9 +832,30 @@ int get_line(FILE *file, char **line) {
     // dealloc buffer
     free(line_buffer);
     line_buffer = NULL;
-    if(char_buffer == EOF) {
+    if (char_buffer == EOF) {
         return EOF;
     }
+    return 1;
+}
+
+int in_array(int value, int *arr, size_t size) {
+    for (size_t i = 0; i < size; ++i) {
+        if (value == arr[i]) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int array_push(int **arr, int value, size_t size) {
+    *arr = realloc(*arr, sizeof(int) * size);
+    if (*arr == NULL) {
+        return 0;
+    }
+    if (value == 0) {
+        return 0;
+    }
+    //*arr[size - 1] = value;
     return 1;
 }
 
@@ -851,51 +868,64 @@ void set_empty(struct set_t set) {
 }
 
 void set_card(struct set_t set) {
-    if (set.size == 0) {
-        printf("true");
-        return;
-    }
-    printf("false");
+    printf("%lu\n", set.size);
 }
 
 void set_complement(struct set_t set) {
-    if (set.size == 0) {
-        printf("true");
-        return;
+    for (size_t i = 0; i < universe.size; ++i) {
+        if (!in_array(universe.elements[i].id, (int *) set.elements, set.size)) {
+            printf("%s ", universe.elements[i].name);
+        }
     }
-    printf("false");
+    printf("\n");
 }
 
-void set_union(struct set_t set) {
-    if (set.size == 0) {
-        printf("true");
-        return;
+void set_union(struct set_t set_a, struct set_t set_b) {
+    for (size_t i = 0; i < set_a.size; i++) {
+        for (size_t j = 0; j < set_b.size; j++) {
+            if (set_a.elements[i] != set_b.elements[j]) {
+                printf("%s ", get_universe_member_name_by_id(universe, set_a.elements[i]));
+            }
+        }
     }
-    printf("false");
+    printf("\n");
 }
 
 void set_intersect(struct set_t set_a, struct set_t set_b) {
-    if (set_a.size == 0 && set_b.size == 0) {
-        printf("true");
-        return;
+    for (size_t i = 0; i < set_a.size; i++) {
+        for (size_t j = 0; j < set_b.size; j++) {
+            if (set_a.elements[i] == set_b.elements[j])
+                printf("%s ", get_universe_member_name_by_id(universe, set_a.elements[i]));
+        }
     }
-    printf("false");
+    printf("\n");
 }
 
 void set_minus(struct set_t set_a, struct set_t set_b) {
-    if (set_a.size == 0 && set_b.size == 0) {
-        printf("true");
-        return;
+    for (size_t i = 0; i < set_a.size; i++) {
+        for (size_t j = 0; j < set_b.size; j++) {
+            if (set_a.elements[i] != set_b.elements[j])
+                printf("%s ", get_universe_member_name_by_id(universe, set_a.elements[i]));
+        }
     }
-    printf("false");
+    printf("\n");
 }
 
 void set_subseteq(struct set_t set_a, struct set_t set_b) {
-    if (set_a.size == 0 && set_b.size == 0) {
-        printf("true");
-        return;
+    size_t count = 0;
+
+    for (size_t i = 0; i < set_a.size; i++) {
+        for (size_t j = 0; j < set_b.size; j++) {
+            if (set_a.elements[i] == set_b.elements[j])
+                count++;
+        }
     }
-    printf("false");
+
+    if (count == set_a.size) {
+        printf("true\n");
+    } else {
+        printf("false\n");
+    }
 }
 
 void set_subset(struct set_t set_a, struct set_t set_b) {
@@ -912,15 +942,6 @@ void set_equals(struct set_t set_a, struct set_t set_b) {
         return;
     }
     printf("false");
-}
-
-int in_array(int value, int *arr, size_t size) {
-    for (size_t i = 0; i < size; ++i) {
-        if (value == arr[i]) {
-            return 1;
-        }
-    }
-    return 0;
 }
 
 void rel_reflexive(struct relation_t relation) {
@@ -955,7 +976,7 @@ void rel_reflexive(struct relation_t relation) {
                 break;
             }
         }
-        if(relation_found == 0) {
+        if (relation_found == 0) {
             printf("false\n");
             return;
         }
@@ -1014,7 +1035,7 @@ void rel_codomain(struct relation_t relation) {
 
 void rel_injective(struct relation_t relation, struct set_t set_a, struct set_t set_b) {
     if (relation.size == 0 && set_a.size == 0 && set_b.size == 0) {
-        printf("true");
+        printf("injective zulul");
         return;
     }
     printf("false");
