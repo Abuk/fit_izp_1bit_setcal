@@ -1,10 +1,13 @@
 U a b c x y z dad boy girl mom woman man
 S a b c x
-S
+S dad boy girl x c
 R (a a) (a b) (b b) (b c) (c c)
 R (dad man) (boy man) (mom woman) (girl woman)
 C empty 1
-C empty 2
-C reflexive 1
-C reflexive 2
-C empty 1
+C card 1
+C card 2
+C complement 2
+C union 1 2
+C intersect 1 2
+C minus 2 1
+C subseteq 1 2
