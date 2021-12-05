@@ -268,7 +268,7 @@ int universe_push(struct universe_t *u, struct universe_member_t member) {
     }
 
     u->size++;
-    u->elements[u->size - 1].name = (char *) malloc(sizeof(char) * (strlen(member.name) + 1));
+    u->elements[u->size - 1].name = malloc(sizeof(char) * (strlen(member.name) + 1));
     if (u->elements[u->size - 1].name == NULL) {
 #ifdef DEBUG
         fprintf(stderr, "realloc: allocation error");
@@ -847,8 +847,8 @@ int in_array(element_t value, element_t *arr, size_t size) {
     return 0;
 }
 
-int array_push(int **arr, int value, size_t size) {
-    *arr = realloc(*arr, sizeof(int) * size);
+int array_push(element_t **arr, element_t value, size_t size) {
+    *arr = realloc(*arr, sizeof(element_t) * size);
     if (*arr == NULL) {
         return 0;
     }
@@ -951,7 +951,7 @@ void rel_reflexive(struct relation_t relation) {
     size_t contains_size = 0;
     for (size_t i = 0; i < relation.size; ++i) {
         if (!in_array(relation.pairs[i].x, contains, contains_size)) {
-            contains = realloc(contains, sizeof(int) * (contains_size + 1));
+            contains = realloc(contains, sizeof(element_t) * (contains_size + 1));
             if (contains == NULL) {
 #ifdef DEBUG
                 fprintf(stderr, "malloc: allocation error");
@@ -960,7 +960,7 @@ void rel_reflexive(struct relation_t relation) {
             contains[contains_size++] = relation.pairs[i].x;
         }
         if (!in_array(relation.pairs[i].y, contains, contains_size)) {
-            contains = realloc(contains, sizeof(int) * (contains_size + 1));
+            contains = realloc(contains, sizeof(element_t) * (contains_size + 1));
             if (contains == NULL) {
 #ifdef DEBUG
                 fprintf(stderr, "malloc: allocation error");
@@ -1101,7 +1101,7 @@ int is_surjective(struct relation_t relation, struct set_t set_a, struct set_t s
         for (size_t a = 0; a < set_b.size; a++) {
             if (relation.pairs[i].y == set_b.elements[a]) {
                 if (!in_array(relation.pairs[i].y, contains, contains_size)) {
-                    contains = realloc(contains, sizeof(int) * (contains_size + 1));
+                    contains = realloc(contains, sizeof(element_t) * (contains_size + 1));
                     if (contains == NULL) {
 #ifdef DEBUG
                         fprintf(stderr, "malloc: allocation error");
