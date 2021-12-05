@@ -838,7 +838,7 @@ int get_line(FILE *file, char **line) {
     return 1;
 }
 
-int in_array(int value, int *arr, size_t size) {
+int in_array(element_t value, element_t *arr, size_t size) {
     for (size_t i = 0; i < size; ++i) {
         if (value == arr[i]) {
             return 1;
@@ -875,7 +875,7 @@ void set_card(struct set_t set) {
 
 void set_complement(struct set_t set) {
     for (size_t i = 0; i < universe.size; ++i) {
-        if (!in_array(universe.elements[i].id, (int *) set.elements, set.size)) {
+        if (!in_array(universe.elements[i].id, set.elements, set.size)) {
             printf("%s ", universe.elements[i].name);
         }
     }
@@ -886,12 +886,12 @@ void set_union(struct set_t set_a, struct set_t set_b) {
     struct set_t set = set_construct();
 
     for (size_t i = 0; i < set_a.size; i++) {
-        if (!in_array(set_a.elements[i], (int *) set.elements, set_a.size)) {
+        if (!in_array(set_a.elements[i], set.elements, set_a.size)) {
             set_push(&set, set_a.elements[i]);
         }
     }
     for (size_t i = 0; i < set_b.size; i++) {
-        if (!in_array(set_b.elements[i], (int *) set.elements, set_b.size)) {
+        if (!in_array(set_b.elements[i], set.elements, set_b.size)) {
             set_push(&set, set_b.elements[i]);
         }
     }
@@ -903,7 +903,7 @@ void set_union(struct set_t set_a, struct set_t set_b) {
 
 void set_intersect(struct set_t set_a, struct set_t set_b) {
     for (size_t i = 0; i < set_a.size; i++) {
-        if (in_array(set_a.elements[i], (int *) set_b.elements, set_b.size)) {
+        if (in_array(set_a.elements[i], set_b.elements, set_b.size)) {
             printf("%s ", get_universe_member_name_by_id(universe, set_a.elements[i]));
         }
     }
@@ -912,7 +912,7 @@ void set_intersect(struct set_t set_a, struct set_t set_b) {
 
 void set_minus(struct set_t set_a, struct set_t set_b) {
     for (size_t i = 0; i < set_a.size; i++) {
-        if (!in_array(set_a.elements[i], (int *) set_b.elements, set_b.size)) {
+        if (!in_array(set_a.elements[i], set_b.elements, set_b.size)) {
             printf("%s ", get_universe_member_name_by_id(universe, set_a.elements[i]));
         }
     }
@@ -921,7 +921,7 @@ void set_minus(struct set_t set_a, struct set_t set_b) {
 
 void set_subseteq(struct set_t set_a, struct set_t set_b) {
     for (size_t i = 0; i < set_a.size; i++) {
-        if (!in_array(set_a.elements[i], (int *) set_b.elements, set_b.size)) {
+        if (!in_array(set_a.elements[i], set_b.elements, set_b.size)) {
             printf("false\n");
             return;
         }
@@ -950,7 +950,7 @@ void rel_reflexive(struct relation_t relation) {
     element_t *contains = NULL;
     size_t contains_size = 0;
     for (size_t i = 0; i < relation.size; ++i) {
-        if (!in_array(relation.pairs[i].x, (int *) contains, contains_size)) {
+        if (!in_array(relation.pairs[i].x, contains, contains_size)) {
             contains = realloc(contains, sizeof(int) * (contains_size + 1));
             if (contains == NULL) {
 #ifdef DEBUG
@@ -959,7 +959,7 @@ void rel_reflexive(struct relation_t relation) {
             }
             contains[contains_size++] = relation.pairs[i].x;
         }
-        if (!in_array(relation.pairs[i].y, (int *) contains, contains_size)) {
+        if (!in_array(relation.pairs[i].y, contains, contains_size)) {
             contains = realloc(contains, sizeof(int) * (contains_size + 1));
             if (contains == NULL) {
 #ifdef DEBUG
@@ -1030,20 +1030,20 @@ void rel_domain(struct relation_t relation) {
 void rel_codomain(struct relation_t relation) {
     element_t *arr = NULL;
     size_t arr_size = 0;
-    for(size_t i = 0; i < relation.size; i++){
-        if(!in_array(relation.pairs[i].y, (int *)arr, arr_size)) {
+    for (size_t i = 0; i < relation.size; i++) {
+        if (!in_array(relation.pairs[i].y, arr, arr_size)) {
             printf("%s ", get_universe_member_name_by_id(universe, relation.pairs[i].y));
             arr = realloc(arr, sizeof(element_t) * ++arr_size);
-            arr[arr_size-1] = relation.pairs[i].y;
+            arr[arr_size - 1] = relation.pairs[i].y;
         }
     }
     printf("\n");
 }
 
-int pair_in_array(struct pair_t value, struct pair_t* array, size_t size){
-    for(size_t i = 0; i < size; i++){
-        if(array[i].x == value.x){
-            if(array[i].y == value.y){
+int pair_in_array(struct pair_t value, struct pair_t *array, size_t size) {
+    for (size_t i = 0; i < size; i++) {
+        if (array[i].x == value.x) {
+            if (array[i].y == value.y) {
                 return 1;
             }
         }
@@ -1051,7 +1051,7 @@ int pair_in_array(struct pair_t value, struct pair_t* array, size_t size){
     return 0;
 };;
 
-int is_injective(struct relation_t relation, struct set_t set_a, struct set_t set_b){
+int is_injective(struct relation_t relation, struct set_t set_a, struct set_t set_b) {
 
     if (relation.size == 0 && set_a.size == 0 && set_b.size == 0) {
         return 1;
@@ -1059,11 +1059,11 @@ int is_injective(struct relation_t relation, struct set_t set_a, struct set_t se
     struct pair_t *contains = NULL;
     size_t contains_size = 0;
     for (size_t i = 0; i < relation.size; ++i) {
-        for(size_t a = 0; a < set_b.size; a++) {
-            if(relation.pairs[i].x == set_a.elements[a]) {
+        for (size_t a = 0; a < set_b.size; a++) {
+            if (relation.pairs[i].x == set_a.elements[a]) {
                 if (!pair_in_array(relation.pairs[i], contains, contains_size)) {
-                    for(size_t b = 0; b < contains_size; b++){
-                        if(contains[b].x == relation.pairs[i].x){
+                    for (size_t b = 0; b < contains_size; b++) {
+                        if (contains[b].x == relation.pairs[i].x) {
                             return 0;
                         }
                     }
@@ -1084,23 +1084,23 @@ int is_injective(struct relation_t relation, struct set_t set_a, struct set_t se
 
 
 void rel_injective(struct relation_t relation, struct set_t set_a, struct set_t set_b) {
-    if(is_injective(relation, set_a, set_b)){
+    if (is_injective(relation, set_a, set_b)) {
         printf("true");
         return;
     }
     printf("false");
 };
 
-int is_surjective(struct relation_t relation, struct set_t set_a, struct set_t set_b){
+int is_surjective(struct relation_t relation, struct set_t set_a, struct set_t set_b) {
     if (relation.size == 0 && set_a.size == 0 && set_b.size == 0) {
         return 1;
     }
     element_t *contains = NULL;
     size_t contains_size = 0;
     for (size_t i = 0; i < relation.size; ++i) {
-        for(size_t a = 0; a < set_b.size; a++) {
-            if(relation.pairs[i].y == set_b.elements[a]) {
-                if (!in_array(relation.pairs[i].y, (int *) contains, contains_size)) {
+        for (size_t a = 0; a < set_b.size; a++) {
+            if (relation.pairs[i].y == set_b.elements[a]) {
+                if (!in_array(relation.pairs[i].y, contains, contains_size)) {
                     contains = realloc(contains, sizeof(int) * (contains_size + 1));
                     if (contains == NULL) {
 #ifdef DEBUG
@@ -1112,14 +1112,14 @@ int is_surjective(struct relation_t relation, struct set_t set_a, struct set_t s
             }
         }
     }
-    if(contains_size == set_b.size) {
+    if (contains_size == set_b.size) {
         return 1;
     }
     return 0;
 };
 
 void rel_surjective(struct relation_t relation, struct set_t set_a, struct set_t set_b) {
-    if(is_surjective(relation, set_a, set_b)){
+    if (is_surjective(relation, set_a, set_b)) {
         printf("true");
         return;
     }
@@ -1127,7 +1127,7 @@ void rel_surjective(struct relation_t relation, struct set_t set_a, struct set_t
 };;
 
 void rel_bijective(struct relation_t relation, struct set_t set_a, struct set_t set_b) {
-    if(is_injective(relation, set_a, set_b) && is_surjective(relation, set_a, set_b)){
+    if (is_injective(relation, set_a, set_b) && is_surjective(relation, set_a, set_b)) {
         printf("true");
         return;
     }
