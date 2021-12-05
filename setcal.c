@@ -1047,10 +1047,6 @@ void sort_set(struct set_t *set) {
             }
         }
     }
-    for(size_t i = 0; i < set->size;++i) {
-        printf("%d ", set->elements[i]);
-    }
-    printf("\n");
 }
 
 void set_equals(struct set_t set_a, struct set_t set_b) {
