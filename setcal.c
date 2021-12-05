@@ -633,6 +633,7 @@ struct set_t get_set_by_line_number(int line_num) {
             return sets[i];
         }
     }
+    universe_set.size = (size_t) -1;
     return universe_set;
 }
 
@@ -686,6 +687,7 @@ struct relation_t get_relation_by_line_number(int line_num) {
             return relations[i];
         }
     }
+    relation.size = (size_t) -1;
     return relation;
 }
 
@@ -763,34 +765,34 @@ int parse_command(char *line) {
         case 'S': {
             switch (func->n_args) {
                 case 1: {
-                    if (args[0] > global_count) {
+                    struct set_t set = get_set_by_line_number(args[0]);
+                    if (set.size == (size_t) -1) {
                         free_array(&args);
 #ifdef DEBUG
                         fprintf(stderr, "command_parser: argument referencing undefined set\n");
 #endif
                         return 0;
                     }
-                    struct set_t set = get_set_by_line_number(args[0]);
                     (*func->p_func)(set);
-                    if(args[0] == 1) {
+                    if (args[0] == 1) {
                         set_destruct(&set);
                     }
                     return 1;
                 }
                 case 2: {
-                    if (args[0] > global_count || args[1] > global_count) {
+                    struct set_t set_1 = get_set_by_line_number(args[0]);
+                    struct set_t set_2 = get_set_by_line_number(args[1]);
+                    if (set_1.size == (size_t) -1 || set_2.size == (size_t) -1) {
                         free_array(&args);
 #ifdef DEBUG
                         fprintf(stderr, "command_parser: argument referencing undefined set\n");
 #endif
                         return 0;
                     }
-                    struct set_t set_1 = get_set_by_line_number(args[0]);
-                    struct set_t set_2 = get_set_by_line_number(args[1]);
                     (*func->p_func)(set_1, set_2);
-                    if(args[0] == 1) {
+                    if (args[0] == 1) {
                         set_destruct(&set_1);
-                    } else if (args[1] == 1){
+                    } else if (args[1] == 1) {
                         set_destruct(&set_2);
                     }
                     break;
@@ -801,26 +803,29 @@ int parse_command(char *line) {
         case 'R': {
             switch (func->n_args) {
                 case 1: {
-                    if (args[0] > global_count) {
+                    struct relation_t relation = get_relation_by_line_number(args[0]);
+                    if (relation.size == (size_t) -1) {
                         free_array(&args);
 #ifdef DEBUG
                         fprintf(stderr, "command_parser: argument referencing undefined set\n");
 #endif
                         return 0;
                     }
-                    (*func->p_func)(get_relation_by_line_number(args[0]));
+                    (*func->p_func)(relation);
                     break;
                 }
                 case 3: {
-                    if (args[0] > global_count || args[1] > global_count || args[2] > global_count) {
+
+                    struct set_t set = get_set_by_line_number(args[0]);
+                    struct relation_t relation_1 = get_relation_by_line_number(args[1]);
+                    struct relation_t relation_2 = get_relation_by_line_number(args[2]);
+                    if (set.size == (size_t) -1 || relation_1.size == (size_t) -1 || relation_2.size == (size_t) -1) {
                         free_array(&args);
 #ifdef DEBUG
                         fprintf(stderr, "command_parser: argument referencing undefined set\n");
 #endif
                         return 0;
                     }
-                    struct set_t set = get_set_by_line_number(args[0]);
-
                     (*func->p_func)(set, get_relation_by_line_number(args[1]),
                                     get_relation_by_line_number(args[2]));
                     set_destruct(&set);
