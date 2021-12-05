@@ -305,7 +305,7 @@ char *get_universe_member_name_by_id(struct universe_t u, element_t id) {
 struct set_t set_construct() {
     struct set_t set;
 
-    set.elements = (element_t *) malloc(0);
+    set.elements = NULL;
     set.size = 0;
 
     return set;
