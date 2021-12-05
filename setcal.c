@@ -560,6 +560,9 @@ int parse_universe(char *universe_string) {
         }
         universe_push(&universe, member);
         substr = strtok(NULL, " ");
+
+        free(member.name);
+        member.name = NULL;
     } while (substr != NULL);
 
     return 1;
