@@ -899,6 +899,8 @@ void set_union(struct set_t set_a, struct set_t set_b) {
         printf("%s ", get_universe_member_name_by_id(universe, set.elements[i]));
     }
     printf("\n");
+
+    set_destruct(&set);
 }
 
 void set_intersect(struct set_t set_a, struct set_t set_b) {
@@ -985,6 +987,8 @@ void rel_reflexive(struct relation_t relation) {
     }
 
     printf("true\n");
+    free(contains);
+    contains = NULL;
 }
 
 void rel_symmetric(struct relation_t relation) {
@@ -1038,6 +1042,8 @@ void rel_codomain(struct relation_t relation) {
         }
     }
     printf("\n");
+    free(arr);
+    arr = NULL;
 }
 
 int pair_in_array(struct pair_t value, struct pair_t *array, size_t size) {
@@ -1052,7 +1058,6 @@ int pair_in_array(struct pair_t value, struct pair_t *array, size_t size) {
 };;
 
 int is_injective(struct relation_t relation, struct set_t set_a, struct set_t set_b) {
-
     if (relation.size == 0 && set_a.size == 0 && set_b.size == 0) {
         return 1;
     }
@@ -1079,6 +1084,8 @@ int is_injective(struct relation_t relation, struct set_t set_a, struct set_t se
             }
         }
     }
+    free(contains);
+    contains = NULL;
     return 1;
 }
 
@@ -1089,7 +1096,7 @@ void rel_injective(struct relation_t relation, struct set_t set_a, struct set_t 
         return;
     }
     printf("false");
-};
+}
 
 int is_surjective(struct relation_t relation, struct set_t set_a, struct set_t set_b) {
     if (relation.size == 0 && set_a.size == 0 && set_b.size == 0) {
@@ -1112,11 +1119,13 @@ int is_surjective(struct relation_t relation, struct set_t set_a, struct set_t s
             }
         }
     }
+    free(contains);
+    contains = NULL;
     if (contains_size == set_b.size) {
         return 1;
     }
     return 0;
-};
+}
 
 void rel_surjective(struct relation_t relation, struct set_t set_a, struct set_t set_b) {
     if (is_surjective(relation, set_a, set_b)) {
@@ -1124,7 +1133,7 @@ void rel_surjective(struct relation_t relation, struct set_t set_a, struct set_t
         return;
     }
     printf("false");
-};;
+}
 
 void rel_bijective(struct relation_t relation, struct set_t set_a, struct set_t set_b) {
     if (is_injective(relation, set_a, set_b) && is_surjective(relation, set_a, set_b)) {
@@ -1132,4 +1141,4 @@ void rel_bijective(struct relation_t relation, struct set_t set_a, struct set_t 
         return;
     }
     printf("false");
-};;
+}
