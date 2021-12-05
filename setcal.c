@@ -93,7 +93,7 @@ int relation_push(struct relation_t *relation, struct pair_t pair);
 struct pair_t new_pair(element_t x, element_t y);
 
 // universe member functions
-struct universe_member_t new_universe_member(element_t id, char *name);
+int new_universe_member(struct universe_member_t *member, element_t id, char *name);
 
 void print_program_usage();
 
@@ -374,20 +374,20 @@ struct pair_t new_pair(element_t x, element_t y) {
 }
 
 // universe member functions
-struct universe_member_t new_universe_member(element_t id, char *name) {
-    struct universe_member_t member;
+int new_universe_member(struct universe_member_t *member, element_t id, char *name) {
 
-    member.id = id;
-    member.name = malloc(sizeof(char) * (strlen(name) + 1));
-    if(member.name == NULL) {
+    member->id = id;
+    member->name = malloc(sizeof(char) * (strlen(name) + 1));
+    if (member->name == NULL) {
 #ifdef DEBUG
         fprintf(stderr, "malloc: allocation error");
+        return 0;
 #endif
     }
 
-    strcpy(member.name, name);
+    strcpy(member->name, name);
 
-    return member;
+    return 1;
 }
 
 
@@ -548,7 +548,10 @@ int parse_universe(char *universe_string) {
 #endif
             return 0;
         }
-        struct universe_member_t member = new_universe_member(i++, substr);
+        struct universe_member_t member;
+        if(!new_universe_member(&member, i++, substr)) {
+            return 0;
+        }
         if (get_universe_member_id_by_name(universe, substr) != -1) {
 #ifdef DEBUG
             fprintf(stderr, "universe: member [%s] already exists and cannot be redeclared twice\n", substr);
