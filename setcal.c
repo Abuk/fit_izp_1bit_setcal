@@ -886,12 +886,12 @@ void set_union(struct set_t set_a, struct set_t set_b) {
     struct set_t set = set_construct();
 
     for (size_t i = 0; i < set_a.size; i++) {
-        if (!in_array(set_a.elements[i], set.elements, set_a.size)) {
+        if (!in_array(set_a.elements[i], set.elements, set.size)) {
             set_push(&set, set_a.elements[i]);
         }
     }
     for (size_t i = 0; i < set_b.size; i++) {
-        if (!in_array(set_b.elements[i], set.elements, set_b.size)) {
+        if (!in_array(set_b.elements[i], set.elements, set.size)) {
             set_push(&set, set_b.elements[i]);
         }
     }
