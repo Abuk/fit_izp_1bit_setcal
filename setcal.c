@@ -1131,11 +1131,11 @@ void rel_symmetric(struct relation_t relation) {
 }
 
 void rel_antisymmetric(struct relation_t relation) {
-    if (relation.size == 0) {
-        printf("true");
+    if(!is_symmetric(relation)) {
+        printf("true\n");
         return;
     }
-    printf("false");
+    printf("false\n");
 }
 
 void rel_transitive(struct relation_t relation) {
