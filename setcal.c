@@ -1069,6 +1069,10 @@ void set_equals(struct set_t set_a, struct set_t set_b) {
 void rel_reflexive(struct relation_t relation) {
     element_t *contains = NULL;
     size_t contains_size = 0;
+    if(relation.size == 0) {
+        printf("false\n");
+        return;
+    }
     for (size_t i = 0; i < relation.size; ++i) {
         if (!in_array(relation.pairs[i].x, contains, contains_size)) {
             contains = realloc(contains, sizeof(element_t) * (contains_size + 1));
