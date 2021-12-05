@@ -470,6 +470,7 @@ int parse_line(char *line) {
 #ifdef DEBUG
         fprintf(stderr, "setcal: line limit exceeded (maximum lines: %d)", MAX_LINE_COUNT);
 #endif
+        return 0;
     }
     switch (line[0]) {
         case 'U': {
