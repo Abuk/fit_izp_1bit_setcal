@@ -821,7 +821,7 @@ int get_line(FILE *file, char **line) {
         return 0;
     }
 
-    *line = (char *) malloc(sizeof(char) * char_count);
+    *line = realloc(*line, sizeof(char) * char_count);
     if (*line == NULL) {
         fprintf(stderr, "loader: allocation error");
         return 0;
@@ -866,7 +866,11 @@ void set_empty(struct set_t set) {
 }
 
 void set_card(struct set_t set) {
+#ifdef WIN32
     printf("%u\n", set.size);
+#else
+    printf("%lu\n", set.size);
+#endif
 }
 
 void set_complement(struct set_t set) {
