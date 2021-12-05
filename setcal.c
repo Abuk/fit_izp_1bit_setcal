@@ -1039,7 +1039,7 @@ void set_subset(struct set_t set_a, struct set_t set_b) {
 
 void sort_set(struct set_t *set) {
     for(size_t i = 0; i < set->size;++i) {
-        for(size_t j = 0; i < set->size;++j) {
+        for(size_t j = 0; j < set->size;++j) {
             if(set->elements[i] > set->elements[j]) {
                 element_t tmp = set->elements[i];
                 set->elements[i] = set->elements[j];
@@ -1047,6 +1047,10 @@ void sort_set(struct set_t *set) {
             }
         }
     }
+    for(size_t i = 0; i < set->size;++i) {
+        printf("%d ", set->elements[i]);
+    }
+    printf("\n");
 }
 
 void set_equals(struct set_t set_a, struct set_t set_b) {
