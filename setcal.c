@@ -378,13 +378,7 @@ struct universe_member_t new_universe_member(element_t id, char *name) {
     struct universe_member_t member;
 
     member.id = id;
-    member.name = (char *) malloc(sizeof(char) * (strlen(name) + 1));
-
-    if (member.name == NULL) {
-        fprintf(stderr, "malloc: allocation error");
-    }
-
-    strcpy(member.name, name);
+    member.name = strdup(name);
 
     return member;
 }
