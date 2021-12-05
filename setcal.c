@@ -92,6 +92,8 @@ int relation_push(struct relation_t *relation, struct pair_t pair);
 // pair functions
 struct pair_t new_pair(element_t x, element_t y);
 
+int pair_in_array(struct pair_t value, struct pair_t *array, size_t size);
+
 // universe member functions
 int new_universe_member(struct universe_member_t *member, element_t id, char *name);
 
@@ -110,6 +112,8 @@ int parse_set(int set_pos, char *line);
 int parse_relation(int relation_pos, char *line);
 
 int parse_command(char *line);
+
+int in_array(element_t value, element_t *arr, size_t size);
 
 // loader
 int load_file(struct program_params_t params, FILE **file);
@@ -549,7 +553,7 @@ int parse_universe(char *universe_string) {
             return 0;
         }
         struct universe_member_t member;
-        if(!new_universe_member(&member, i++, substr)) {
+        if (!new_universe_member(&member, i++, substr)) {
             return 0;
         }
         if (get_universe_member_id_by_name(universe, substr) != -1) {
@@ -577,12 +581,19 @@ int parse_set(int set_pos, char *line) {
             substr = strtok(NULL, " ");
             continue;
         }
+
         if (keywords_contain(substr)) {
 #ifdef DEBUG
             fprintf(stderr, "set: member [%s] cannot be one of reserved keywords\n", substr);
 #endif
             return 0;
         }
+
+        if (in_array(get_universe_member_id_by_name(universe, substr), sets[set_pos].elements, sets[set_pos].size)) {
+            fprintf(stderr, "set: member [%s] already defined\n", substr);
+            return 0;
+        }
+
         set_push(&sets[set_pos], get_universe_member_id_by_name(universe, substr));
         substr = strtok(NULL, " ");
     } while (substr != NULL);
@@ -620,7 +631,12 @@ int parse_relation(int relation_pos, char *line) {
 #endif
             return 0;
         }
-
+        struct pair_t pair = new_pair(x, y);
+        if (pair_in_array(pair, relations[relation_pos].pairs, relations[relation_pos].size)) {
+            fprintf(stderr, "relation: cannot have the same relation twice (%s %s)\n",
+                    get_universe_member_name_by_id(universe, x), get_universe_member_name_by_id(universe, y));
+            return 0;
+        }
         relation_push(&relations[relation_pos], new_pair(x, y));
     } while (substr != NULL);
 
@@ -692,7 +708,6 @@ int parse_command(char *line) {
 
     if (func->n_args != k) {
         free_array(&args);
-        printf("relation: %d", args[0]);
 #ifdef DEBUG
         fprintf(stderr, "command: function %s expects %d arguments (%d provided)\n", func->alias, func->n_args, k);
 #endif
@@ -1058,14 +1073,12 @@ void rel_codomain(struct relation_t relation) {
 
 int pair_in_array(struct pair_t value, struct pair_t *array, size_t size) {
     for (size_t i = 0; i < size; i++) {
-        if (array[i].x == value.x) {
-            if (array[i].y == value.y) {
-                return 1;
-            }
+        if (array[i].x == value.x && array[i].y == value.y) {
+            return 1;
         }
     }
     return 0;
-};;
+}
 
 int is_injective(struct relation_t relation, struct set_t set_a, struct set_t set_b) {
     if (relation.size == 0 && set_a.size == 0 && set_b.size == 0) {

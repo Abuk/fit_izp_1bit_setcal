@@ -1,7 +1,7 @@
 U a b c x y z dad boy girl mom woman man
 S c x
 S dad boy girl x c
-R (a a) (a b) (b b) (b c) (c c)
+R (a a) (a b) (b b) (b c) (c c) (c c)
 R (dad man) (boy man) (mom woman) (girl woman)
 C empty 1
 C card 1
