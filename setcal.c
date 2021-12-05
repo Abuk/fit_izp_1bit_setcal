@@ -1183,10 +1183,10 @@ int is_injective(struct relation_t relation, struct set_t set_a, struct set_t se
 
 void rel_injective(struct relation_t relation, struct set_t set_a, struct set_t set_b) {
     if (is_injective(relation, set_a, set_b)) {
-        printf("true");
+        printf("true\n");
         return;
     }
-    printf("false");
+    printf("false\n");
 }
 
 int is_surjective(struct relation_t relation, struct set_t set_a, struct set_t set_b) {
@@ -1220,16 +1220,16 @@ int is_surjective(struct relation_t relation, struct set_t set_a, struct set_t s
 
 void rel_surjective(struct relation_t relation, struct set_t set_a, struct set_t set_b) {
     if (is_surjective(relation, set_a, set_b)) {
-        printf("true");
+        printf("true\n");
         return;
     }
-    printf("false");
+    printf("false\n");
 }
 
 void rel_bijective(struct relation_t relation, struct set_t set_a, struct set_t set_b) {
     if (is_injective(relation, set_a, set_b) && is_surjective(relation, set_a, set_b)) {
-        printf("true");
+        printf("true\n");
         return;
     }
-    printf("false");
+    printf("false\n");
 }
