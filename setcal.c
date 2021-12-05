@@ -756,10 +756,11 @@ int parse_command(char *line) {
         }
     }
 
-    free_array(&args);
+    //free_array(&args);
+    free(args);
+    args = NULL;
     free(arg);
     arg = NULL;
-
     return 1;
 }
 
