@@ -634,7 +634,7 @@ void free_array(int **arr) {
 }
 
 int parse_command(char *line) {
-    char *function;
+    char *function = NULL;
     struct function_t *func;
     int func_type = 0;
     int *args = NULL;
@@ -757,6 +757,8 @@ int parse_command(char *line) {
     }
 
     free_array(&args);
+    free(arg);
+    arg = NULL;
 
     return 1;
 }
