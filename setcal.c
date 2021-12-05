@@ -786,8 +786,11 @@ int parse_command(char *line) {
                     struct set_t set_1 = get_set_by_line_number(args[0]);
                     struct set_t set_2 = get_set_by_line_number(args[1]);
                     (*func->p_func)(set_1, set_2);
-                    set_destruct(&set_1);
-                    set_destruct(&set_2);
+                    if(args[0] == 1) {
+                        set_destruct(&set_1);
+                    } else if (args[1] == 1){
+                        set_destruct(&set_2);
+                    }
                     break;
                 }
             }
