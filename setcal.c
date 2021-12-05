@@ -1113,12 +1113,21 @@ void rel_reflexive(struct relation_t relation) {
     contains = NULL;
 }
 
+int is_symmetric(struct relation_t relation) {
+    for(size_t i = 0; i < relation.size; ++i) {
+        if(!pair_in_array(new_pair(relation.pairs[i].y, relation.pairs[i].x), relation.pairs, relation.size)) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 void rel_symmetric(struct relation_t relation) {
-    if (relation.size == 0) {
-        printf("true");
+    if(is_symmetric(relation)) {
+        printf("true\n");
         return;
     }
-    printf("false");
+    printf("false\n");
 }
 
 void rel_antisymmetric(struct relation_t relation) {
