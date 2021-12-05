@@ -815,20 +815,24 @@ int parse_command(char *line) {
                     break;
                 }
                 case 3: {
-
-                    struct set_t set = get_set_by_line_number(args[0]);
-                    struct relation_t relation_1 = get_relation_by_line_number(args[1]);
-                    struct relation_t relation_2 = get_relation_by_line_number(args[2]);
-                    if (set.size == (size_t) -1 || relation_1.size == (size_t) -1 || relation_2.size == (size_t) -1) {
+                    struct set_t set_1 = get_set_by_line_number(args[1]);
+                    struct set_t set_2 = get_set_by_line_number(args[2]);
+                    struct relation_t relation = get_relation_by_line_number(args[0]);
+                    if (set_1.size == (size_t) -1 || set_2.size == (size_t) -1 || relation.size == (size_t) -1) {
                         free_array(&args);
 #ifdef DEBUG
                         fprintf(stderr, "command_parser: argument referencing undefined set\n");
 #endif
                         return 0;
                     }
-                    (*func->p_func)(set, get_relation_by_line_number(args[1]),
-                                    get_relation_by_line_number(args[2]));
-                    set_destruct(&set);
+                    (*func->p_func)(relation, set_1, set_2);
+                    // universe memory leak fix
+                    if(args[1] == 1) {
+                        set_destruct(&set_1);
+                    }
+                    if(args[2] == 1) {
+                        set_destruct(&set_2);
+                    }
                     break;
                 }
             }
