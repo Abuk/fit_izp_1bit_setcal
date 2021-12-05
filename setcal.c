@@ -968,6 +968,7 @@ void set_card(struct set_t set) {
 }
 
 void set_complement(struct set_t set) {
+    printf("S ");
     for (size_t i = 0; i < universe.size; ++i) {
         if (!in_array(universe.elements[i].id, set.elements, set.size)) {
             printf("%s ", universe.elements[i].name);
@@ -978,7 +979,7 @@ void set_complement(struct set_t set) {
 
 void set_union(struct set_t set_a, struct set_t set_b) {
     struct set_t set = set_construct();
-
+    printf("S ");
     for (size_t i = 0; i < set_a.size; i++) {
         if (!in_array(set_a.elements[i], set.elements, set.size)) {
             set_push(&set, set_a.elements[i]);
@@ -998,6 +999,7 @@ void set_union(struct set_t set_a, struct set_t set_b) {
 }
 
 void set_intersect(struct set_t set_a, struct set_t set_b) {
+    printf("S ");
     for (size_t i = 0; i < set_a.size; i++) {
         if (in_array(set_a.elements[i], set_b.elements, set_b.size)) {
             printf("%s ", get_universe_member_name_by_id(universe, set_a.elements[i]));
@@ -1007,6 +1009,7 @@ void set_intersect(struct set_t set_a, struct set_t set_b) {
 }
 
 void set_minus(struct set_t set_a, struct set_t set_b) {
+    printf("S ");
     for (size_t i = 0; i < set_a.size; i++) {
         if (!in_array(set_a.elements[i], set_b.elements, set_b.size)) {
             printf("%s ", get_universe_member_name_by_id(universe, set_a.elements[i]));
@@ -1128,6 +1131,7 @@ void rel_domain(struct relation_t relation) {
 void rel_codomain(struct relation_t relation) {
     element_t *arr = NULL;
     size_t arr_size = 0;
+    printf("S ");
     for (size_t i = 0; i < relation.size; i++) {
         if (!in_array(relation.pairs[i].y, arr, arr_size)) {
             printf("%s ", get_universe_member_name_by_id(universe, relation.pairs[i].y));
@@ -1170,7 +1174,7 @@ int is_injective(struct relation_t relation, struct set_t set_a, struct set_t se
                         fprintf(stderr, "malloc: allocation error");
 #endif
                     }
-                    contains[contains_size++].x = relation.pairs[i].x;
+                    contains[++contains_size].x = relation.pairs[i].x;
                     contains[contains_size].y = relation.pairs[i].y;
                 }
             }
