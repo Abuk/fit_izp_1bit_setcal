@@ -36,17 +36,20 @@ struct universe_member_t {
 struct universe_t {
     struct universe_member_t *elements;
     size_t size;
+    int line_number;
 };
 
 
 struct set_t {
     size_t size;
     element_t *elements;
+    int line_number;
 };
 
 struct relation_t {
     struct pair_t *pairs;
     size_t size;
+    int line_number;
 };
 
 const char *keywords[] = {
@@ -62,6 +65,7 @@ struct relation_t *relations;
 
 int set_count;
 int relation_count;
+int global_count;
 
 // universe functions
 struct universe_t universe_construct();
@@ -82,12 +86,16 @@ void set_destruct(struct set_t *set);
 
 int set_push(struct set_t *set, element_t element);
 
+struct set_t get_set_by_line_number(int line_num);
+
 // relation functions
 struct relation_t relation_construct();
 
 void relation_destruct(struct relation_t *relation);
 
 int relation_push(struct relation_t *relation, struct pair_t pair);
+
+struct relation_t get_relation_by_line_number(int line_num);
 
 // pair functions
 struct pair_t new_pair(element_t x, element_t y);
@@ -476,6 +484,8 @@ int parse_line(char *line) {
                 return 0;
 #endif
             }
+            universe.line_number = 1;
+            global_count++;
             break;
         }
         case 'S': {
@@ -493,7 +503,9 @@ int parse_line(char *line) {
                 return 0;
 #endif
             }
+            sets[set_count].line_number = current_line_number;
             set_count++;
+            global_count++;
             break;
         }
         case 'R': {
@@ -511,8 +523,9 @@ int parse_line(char *line) {
 #endif
                 return 0;
             }
+            relations[relation_count].line_number = current_line_number;
             relation_count++;
-
+            global_count++;
             break;
         }
         case 'C': {
@@ -601,6 +614,28 @@ int parse_set(int set_pos, char *line) {
     return 1;
 }
 
+struct set_t get_set_by_line_number(int line_num) {
+    struct set_t universe_set = set_construct();
+
+    if (line_num == 1) {
+        universe_set.elements = malloc(sizeof(element_t) * universe.size);
+        universe_set.size = universe.size;
+        if (universe_set.elements == NULL) {
+            fprintf(stderr, "malloc: allocation error");
+        }
+        for (size_t i = 0; i < universe_set.size; ++i) {
+            universe_set.elements[i] = universe.elements[i].id;
+        }
+        return universe_set;
+    }
+    for (int i = 0; i < set_count; ++i) {
+        if (sets[i].line_number == line_num) {
+            return sets[i];
+        }
+    }
+    return universe_set;
+}
+
 int parse_relation(int relation_pos, char *line) {
     char *substr;
     strtok(line, " ");
@@ -642,6 +677,16 @@ int parse_relation(int relation_pos, char *line) {
 
 
     return 1;
+}
+
+struct relation_t get_relation_by_line_number(int line_num) {
+    struct relation_t relation = relation_construct();
+    for (int i = 0; i < relation_count; ++i) {
+        if (relations[i].line_number == line_num) {
+            return relations[i];
+        }
+    }
+    return relation;
 }
 
 void free_array(int **arr) {
@@ -718,25 +763,25 @@ int parse_command(char *line) {
         case 'S': {
             switch (func->n_args) {
                 case 1: {
-                    if (args[0] > set_count) {
+                    if (args[0] > global_count) {
                         free_array(&args);
 #ifdef DEBUG
                         fprintf(stderr, "command_parser: argument referencing undefined set\n");
 #endif
                         return 0;
                     }
-                    (*func->p_func)(sets[args[0] - 1]);
+                    (*func->p_func)(get_set_by_line_number(args[0]));
                     return 1;
                 }
                 case 2: {
-                    if (args[0] > set_count || args[1] > set_count) {
+                    if (args[0] > global_count || args[1] > global_count) {
                         free_array(&args);
 #ifdef DEBUG
                         fprintf(stderr, "command_parser: argument referencing undefined set\n");
 #endif
                         return 0;
                     }
-                    (*func->p_func)(sets[args[0] - 1], sets[args[1] - 1]);
+                    (*func->p_func)(get_set_by_line_number(args[0]), get_set_by_line_number(args[1]));
                     break;
                 }
             }
@@ -745,25 +790,26 @@ int parse_command(char *line) {
         case 'R': {
             switch (func->n_args) {
                 case 1: {
-                    if (args[0] > relation_count) {
+                    if (args[0] > global_count) {
                         free_array(&args);
 #ifdef DEBUG
                         fprintf(stderr, "command_parser: argument referencing undefined set\n");
 #endif
                         return 0;
                     }
-                    (*func->p_func)(relations[args[0] - 1]);
+                    (*func->p_func)(get_relation_by_line_number(args[0]));
                     break;
                 }
                 case 3: {
-                    if (args[0] > relation_count || args[1] > set_count || args[2] > set_count) {
+                    if (args[0] > global_count || args[1] > global_count || args[2] > global_count) {
                         free_array(&args);
 #ifdef DEBUG
                         fprintf(stderr, "command_parser: argument referencing undefined set\n");
 #endif
                         return 0;
                     }
-                    (*func->p_func)(relations[args[0] - 1], sets[args[1] - 1], sets[args[2] - 1]);
+                    (*func->p_func)(get_set_by_line_number(args[0]), get_relation_by_line_number(args[1]),
+                                    get_relation_by_line_number(args[2]));
                     break;
                 }
             }
@@ -771,7 +817,6 @@ int parse_command(char *line) {
         }
     }
 
-    //free_array(&args);
     free(args);
     args = NULL;
     free(arg);

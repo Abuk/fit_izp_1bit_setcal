@@ -1,7 +1,7 @@
 U a b c x y z dad boy girl mom woman man
 S c x
 S dad boy girl x c
-R (a a) (a b) (b b) (b c) (c c) (c c)
+R (a a) (a b) (b b) (b c) (c c)
 R (dad man) (boy man) (mom woman) (girl woman)
 C empty 1
 C card 1
@@ -9,6 +9,6 @@ C card 2
 C complement 2
 C union 1 2
 C intersect 1 2
-C minus 2 1
+C minus 3 2
 C subseteq 1 2
-C codomain 1
+C codomain 4
