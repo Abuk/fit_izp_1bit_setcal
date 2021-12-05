@@ -1037,12 +1037,33 @@ void set_subset(struct set_t set_a, struct set_t set_b) {
     printf("false");
 }
 
+void sort_set(struct set_t *set) {
+    for(size_t i = 0; i < set->size;++i) {
+        for(size_t j = 0; i < set->size;++j) {
+            if(set->elements[i] > set->elements[j]) {
+                element_t tmp = set->elements[i];
+                set->elements[i] = set->elements[j];
+                set->elements[j] = tmp;
+            }
+        }
+    }
+}
+
 void set_equals(struct set_t set_a, struct set_t set_b) {
-    if (set_a.size == 0 && set_b.size == 0) {
-        printf("true");
+    sort_set(&set_a);
+    sort_set(&set_b);
+
+    if(set_a.size != set_b.size) {
+        printf("false\n");
         return;
     }
-    printf("false");
+    for(size_t i = 0; i < set_a.size; ++i) {
+        if(set_a.elements[i] != set_b.elements[i]) {
+            printf("false\n");
+            return;
+        }
+    }
+    printf("true\n");
 }
 
 void rel_reflexive(struct relation_t relation) {
