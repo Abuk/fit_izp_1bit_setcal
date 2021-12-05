@@ -770,7 +770,9 @@ int parse_command(char *line) {
 #endif
                         return 0;
                     }
-                    (*func->p_func)(get_set_by_line_number(args[0]));
+                    struct set_t set = get_set_by_line_number(args[0]);
+                    (*func->p_func)(set);
+                    set_destruct(&set);
                     return 1;
                 }
                 case 2: {
@@ -781,7 +783,11 @@ int parse_command(char *line) {
 #endif
                         return 0;
                     }
-                    (*func->p_func)(get_set_by_line_number(args[0]), get_set_by_line_number(args[1]));
+                    struct set_t set_1 = get_set_by_line_number(args[0]);
+                    struct set_t set_2 = get_set_by_line_number(args[1]);
+                    (*func->p_func)(set_1, set_2);
+                    set_destruct(&set_1);
+                    set_destruct(&set_2);
                     break;
                 }
             }
@@ -808,8 +814,11 @@ int parse_command(char *line) {
 #endif
                         return 0;
                     }
-                    (*func->p_func)(get_set_by_line_number(args[0]), get_relation_by_line_number(args[1]),
+                    struct set_t set = get_set_by_line_number(args[0]);
+
+                    (*func->p_func)(set, get_relation_by_line_number(args[1]),
                                     get_relation_by_line_number(args[2]));
+                    set_destruct(&set);
                     break;
                 }
             }
