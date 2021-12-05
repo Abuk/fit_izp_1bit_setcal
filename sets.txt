@@ -11,3 +11,4 @@ C union 1 2
 C intersect 1 2
 C minus 2 1
 C subseteq 1 2
+C codomain 1
