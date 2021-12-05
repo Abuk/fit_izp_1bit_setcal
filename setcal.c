@@ -1112,20 +1112,47 @@ void rel_transitive(struct relation_t relation) {
     printf("false");
 }
 
+int is_function(struct relation_t relation) {
+    for(size_t i = 0; i < relation.size; ++i) {
+        for(size_t j = 0; j < relation.size; ++j) {
+            if(relation.pairs[j].x == relation.pairs[i].x) {
+                if(relation.pairs[j].y != relation.pairs[i].y) {
+                    return 0;
+                }
+            }
+        }
+    }
+    return 1;
+}
+
 void rel_function(struct relation_t relation) {
-    if (relation.size == 0) {
-        printf("true");
+    if(is_function(relation)) {
+        printf("true\n");
         return;
     }
-    printf("false");
+    printf("false\n");
 }
 
 void rel_domain(struct relation_t relation) {
-    if (relation.size == 0) {
-        printf("true");
-        return;
+    element_t *domain = NULL;
+    size_t domain_size = 0;
+    printf("S ");
+    if (is_function(relation)) {
+        for(size_t i = 0; i < relation.size; ++i) {
+            if(!in_array(relation.pairs[i].x, domain, domain_size)) {
+               printf("%s", get_universe_member_name_by_id(universe, relation.pairs[i].x));
+               domain = realloc(domain, sizeof(element_t) * (domain_size + 1));
+               if(domain == NULL) {
+                   fprintf(stderr, "realloc: allocation failed");
+                   return;
+               }
+               domain[domain_size++] = relation.pairs[i].x;
+            }
+        }
     }
-    printf("false");
+    free(domain);
+    domain = NULL;
+    printf("\n");
 }
 
 void rel_codomain(struct relation_t relation) {
